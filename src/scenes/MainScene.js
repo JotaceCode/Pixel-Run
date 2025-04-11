@@ -8,7 +8,10 @@ export default class MainScene extends Phaser.Scene {
 
   preload() {
     this.load.image("background", "assets/background.png");
-    this.load.image("ground", "assets/ground.png");
+
+    // Cargar mapa y tileset
+    this.load.tilemapTiledJSON("mundo", "assets/mundo-01.json");
+    this.load.image("tiles", "assets/Proyecto nuevo.png");
 
     this.load.spritesheet("player-idle", "assets/player-idle.png", {
       frameWidth: 128,
@@ -33,29 +36,29 @@ export default class MainScene extends Phaser.Scene {
   create() {
     this.fondo = this.add.image(360, 220, "background").setScale(0.5);
 
+    const map = this.make.tilemap({ key: "mundo" });
+    const tileset = map.addTilesetImage("suelo1", "tiles"); // "suelo1" es el nombre del tileset en Tiled
+    const sueloLayer = map.createLayer("suelo", tileset, 0, 0);
+    sueloLayer.setCollisionByExclusion([-1]); // Excluye el tile -1 si existe
+    sueloLayer.setCollisionByProperty({ collides: true });
+    
     // Añadir player
     this.player = this.physics.add
       .sprite(100, this.sys.game.config.height - 250, "player-idle")
-      .setScale(1.8);
+      .setScale(.8);
 
-    // Camaras
-    this.cameras.main.setBounds(0, 0, 3000, this.sys.game.config.height);
+    // Colisiones con el mapa
+    this.physics.add.collider(this.player, sueloLayer);
+
+    // Cámaras
+    this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
     this.cameras.main.startFollow(this.player, true, 1, 0.1);
-    // Mantener el fondo fijo
+
+    // Fondo parallax
     this.fondo.setScrollFactor(0.1);
-    this.fondo.setDepth(-1); // Asegúrate de que el fondo esté detrás de todo lo demás
+    this.fondo.setDepth(-1);
 
-
-    // Añadir suelo
-    this.platforms = this.physics.add.staticGroup();
-    this.platforms
-      .create(0, this.sys.game.config.height - 50, "ground")
-      .setScale(2)
-      .setOrigin(0, 0)
-      .refreshBody();
-
-    // Colisiones
-    this.physics.add.collider(this.player, this.platforms);
+    // Gravedad
     this.physics.world.gravity.y = 600;
 
     // Animaciones
@@ -103,10 +106,9 @@ export default class MainScene extends Phaser.Scene {
   }
 
   update() {
-    const onGround = this.player.body.touching.down;
+    const onGround = this.player.body.onFloor() || this.player.body.touching.down;
     const currentAnim = this.player.anims.currentAnim?.key;
 
-    // Movimiento (solo si no está atacando)
     if (currentAnim !== "attack") {
       if (this.cursors.left.isDown) {
         this.player.setVelocityX(-160);
@@ -129,7 +131,6 @@ export default class MainScene extends Phaser.Scene {
       }
     }
 
-    // Ataque
     if (
       Phaser.Input.Keyboard.JustDown(this.attackKey) &&
       currentAnim !== "attack"
@@ -138,12 +139,10 @@ export default class MainScene extends Phaser.Scene {
       this.player.anims.play("attack", true);
     }
 
-    // Regresar a idle cuando termina el ataque
     if (currentAnim === "attack" && !this.player.anims.isPlaying) {
       this.player.anims.play("idle", true);
     }
 
-    // Ajustar colisionador según animación
     if (currentAnim && currentAnim !== this.currentAnim) {
       this.currentAnim = currentAnim;
 
