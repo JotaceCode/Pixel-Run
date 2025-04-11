@@ -1,9 +1,9 @@
-import MainScene from './scenes/MainScene.js';
+import MainScene from "./scenes/mainScene.js";
 
 const config = {
   type: Phaser.AUTO,
-  width: window.innerWidth,
-  height: window.innerHeight,
+  width: 720,
+  height: 480,
   pixelArt: true,
   physics: {
     default: 'arcade',
