@@ -11,5 +11,9 @@ export const preloadEnemies = function () {
       frameWidth: 96,
       frameHeight: 96,
     });
+    this.load.spritesheet("enemy-death", "assets/enemies/enemy-death.png", {
+      frameWidth: 96,
+      frameHeight: 96,
+    });
   };
   

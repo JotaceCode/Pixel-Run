@@ -14,6 +14,11 @@ export const preloadPlayer = function () {
     this.load.spritesheet("player-attack", "assets/player-attack.png", {
       frameWidth: 128,
       frameHeight: 128,
+      Duration: 4000,
+    });
+    this.load.spritesheet("death", "assets/player-death.png", {
+      frameWidth: 128,
+      frameHeight: 128,
     });
   };
   

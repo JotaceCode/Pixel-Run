@@ -23,5 +23,11 @@ export const createPlayerAnimations = function () {
       frameRate: 10,
       repeat: 0,
     });
+    this.anims.create({
+      key: "death",
+      frames: this.anims.generateFrameNumbers("death", { start: 0, end: 5 }),
+      frameRate: 10,
+      repeat: 0,
+    });
   };
   
