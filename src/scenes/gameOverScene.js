@@ -1,4 +1,4 @@
-export class GameOverScene extends Phaser.Scene {
+export default class GameOverScene extends Phaser.Scene {
   constructor() {
     super("GameOverScene");
   }
@@ -19,7 +19,7 @@ export class GameOverScene extends Phaser.Scene {
     });
 
     // Texto de Game Over
-    const style = { font: "40px Arial", fill: "#fff" };
+    const style = { font: "40px Arial", fill: "white" };
     const text = this.add.text(360, 100, "Game Over", style).setOrigin(0.5);
     text.setShadow(2, 2, "#000000", 2);
     text.setStroke("#000000", 2);

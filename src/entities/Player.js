@@ -1,40 +1,46 @@
-
-
+import { SpeechBubble } from "../ui/SpeechBubble";
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
   lifePoints = 3;
   attackPower = 1;
-  attackRange = 50;
+  attackRange = 40;
 
   constructor(scene, x, y) {
     super(scene, x, y, "player-idle");
     this.scene = scene;
-    this.setOrigin(0.5, 0.5);
+    this.setOrigin(0.5, 0.5); 
     this.setScale(0.8);
     this.scene.add.existing(this);
     this.scene.physics.world.enable(this);
 
-   
+    // Boolean para controlar el estado de ataque
+    this.isAttaking = false;
+    this.isDead = false;
+
     // Controles
     this.cursors = this.scene.input.keyboard.createCursorKeys();
     this.attackKey = this.scene.input.keyboard.addKey(
       Phaser.Input.Keyboard.KeyCodes.E
     );
 
-
     // Movimiento
-    this.speed = 200;
-    this.jumpPower = 400;
+    this.speed = 150;
+    this.jumpPower = 300;
     this.isJumping = false;
-
-    
   }
 
   attack(enemy) {
-    const distance = Phaser.Math.Distance.Between(this.x, this.y, enemy.x, enemy.y);
+    if (!enemy) return;
+
+    if (!enemy || !enemy.active) return;
+    const distance = Phaser.Math.Distance.Between(
+      this.x,
+      this.y,
+      enemy.x,
+      enemy.y
+    );
     if (distance <= this.attackRange) {
       console.log("Player attacks with power:", this.attackPower);
-      console.log("Enemy hit:", enemy);
       enemy.takeDamage(this.attackPower);
     }
   }
@@ -49,21 +55,42 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   die() {
-    console.log("Player has died");
-    // Puedes pausar la escena o cambiar a otra
-    this.anims.play("death", true);
-    this.setActive(false);
-    this.setVisible(false);
-    this.body.enable = false; // Desactivar la física del jugador
+    if (this.isDead) return;
+    this.isDead = true;
+    console.log("Player died!");
+    this.setVelocity(0);
+    this.anims.play("player-death", true);
+    this.scene.time.delayedCall(1000, () => {
+      this.setActive(false);
+      this.setVisible(false);
+      this.destroy();
+    });
   }
 
+  showSpeech(text) {
+    if (this.speechBubble) this.speechBubble.destroy();
   
+    this.speechBubble = new SpeechBubble(this.scene, this.x - 60, this.y - 100, 150, 50, text);
+    
+    this.scene.time.delayedCall(3000, () => {
+      if (this.speechBubble) {
+        this.speechBubble.destroy();
+        this.speechBubble = null;
+      }
+    });
+  }
+  
+
   update() {
-    if (!this.active || !this.body) return;
-  
-    const onGround = this.body.onFloor();
+    // Verificar si el jugador está muerto o no activo
+    if (this.isDead || !this.active || !this.body) return;
+
+    const onGround = this.body?.onFloor?.() || this.body?.touching?.down || false;
     const currentAnim = this.anims.currentAnim?.key;
-  
+
+    // No permitir moverse ni hacer nada mientras ataca
+    if (this.isAttaking) return;
+
     // Movimiento lateral
     if (this.cursors.left.isDown) {
       this.setVelocityX(-this.speed);
@@ -75,49 +102,55 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.flipX = false;
       this.anims.play("walk", true);
       this.lastDirection = "right";
+    } else if (currentAnim !== "attack") {
+      this.setVelocityX(0);
+      this.anims.play("idle", true);
     } else {
       this.setVelocityX(0);
       this.anims.play("idle", true);
     }
-  
+
+
+
     // Saltar
     if (this.cursors.up.isDown && onGround && !this.isJumping) {
       this.setVelocityY(-this.jumpPower);
       this.isJumping = true;
       this.anims.play("jump", true);
     }
-  
-    // Resetear salto si está en el suelo
+
     if (onGround) {
       this.isJumping = false;
     }
-  
+
     // Ataque
     if (Phaser.Input.Keyboard.JustDown(this.attackKey)) {
-      this.setVelocityX(0); // Detener movimiento
+      this.setVelocityX(0);
       this.anims.play("attack", true);
-      //dejar un tiempo para que el ataque se ejecute
-      this.scene.time.delayedCall(10000, () => {
-        this.anims.play("idle", true);
+      this.isAttaking = true;
+
+      // Atacar a los enemigos
+      this.attack(this.scene.enemies);
+
+      // Esperar que termine la animación para volver a permitir movimiento
+      this.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
+        this.isAttaking = false;
       });
-      this.attack(this.scene.enemies); // Atacar
     }
-  
-    // Ajustar colisionador según la animación
+
+    // Ajuste de colisionador
     if (currentAnim && currentAnim !== this.currentAnim) {
       this.currentAnim = currentAnim;
-  
+
       if (["walk", "idle"].includes(currentAnim)) {
         this.body.setSize(32, 64).setOffset(48, 64);
       } else if (currentAnim === "attack") {
-        this.body.setSize(80, 64).setOffset(this.lastDirection === "right" ? 40 : -3, 64);
+        this.body
+          .setSize(80, 64)
+          .setOffset(this.lastDirection === "right" ? 40 : -3, 64);
       } else if (currentAnim === "jump") {
         this.body.setSize(28, 64).setOffset(48, 64);
       }
     }
   }
-
-  
-  
 }
-
