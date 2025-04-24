@@ -5,20 +5,33 @@
     <title>Pixel Run</title>
     <script src="bundle.js" defer></script>
   </head>
-  <body class="w-full h-screen flex justify-center items-center bg-gray-900">
-    <div id="phaser-game" class="relative w-[720px] h-[480px] bg-black">
-      <!-- Phaser inyecta su canvas aquí -->
+  <body class="w-full h-screen flex flex-col items-center bg-gray-900">
+    <!-- Navbar -->
+    <nav
+      class="fixed top-0 left-0 w-full bg-gray-800 text-white p-4 flex justify-between items-center z-50"
+    >
+      <div class="text-lg font-bold">Pixel Run</div>
+      <div class="flex space-x-4">
+        <a href="#" class="hover:text-gray-400">Inicio</a>
+        <a href="#" class="hover:text-gray-400">Sobre mí</a>
+        <a href="#" class="hover:text-gray-400">Contacto</a>
+      </div>
+    </nav>
 
+    <div
+      id="phaser-game"
+      class="relative mt-20 w-[720px] h-[480px]"
+    >
       <!-- HUD o UI dentro del canvas -->
       <div
         id="ui"
-        class="absolute top-0 left-0 w-full h-full pointer-events-none"
+        class="absolute mt-20 top-20 w-full h-full pointer-events-none bg-transparent"
       >
         <!-- VIDA en la esquina superior derecha -->
         <div
-          class="absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded text-[1.2rem] font-bold"
+          class="absolute top-2 right-2 bg-transparent text-white px-3 py-1 rounded text-[1.2rem] font-bold"
         >
-          Vida: <span id="vida">100</span>
+          Vidas: <span id="vida"></span>
         </div>
       </div>
     </div>
