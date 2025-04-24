@@ -1,4 +1,4 @@
-import { SpeechBubble } from "../ui/SpeechBubble";
+
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
   lifePoints = 3;
@@ -9,7 +9,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     super(scene, x, y, "player-idle");
     this.scene = scene;
     this.setOrigin(0.5, 0.5); 
-    this.setScale(0.8);
+    this.setScale(.8); // Escala del sprite
     this.scene.add.existing(this);
     this.scene.physics.world.enable(this);
 
@@ -67,18 +67,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
-  showSpeech(text) {
-    if (this.speechBubble) this.speechBubble.destroy();
   
-    this.speechBubble = new SpeechBubble(this.scene, this.x - 60, this.y - 100, 150, 50, text);
-    
-    this.scene.time.delayedCall(3000, () => {
-      if (this.speechBubble) {
-        this.speechBubble.destroy();
-        this.speechBubble = null;
-      }
-    });
-  }
   
 
   update() {

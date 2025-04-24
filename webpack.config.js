@@ -20,8 +20,8 @@ module.exports = {
         },
       },
       {
-        test: /\.css$/,  // Regla para los archivos CSS
-        use: ['style-loader', 'css-loader'],  // Cargar CSS en JS
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader', 'postcss-loader'],
       },
       {
         test: /\.(png|jpg|gif)$/i,  // Regla para las imágenes
@@ -48,6 +48,8 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: 'src/assets', to: 'assets' },  // Copia los assets a la carpeta dist/assets
+        
+        { from: 'src/index.html', to: 'index.html' },  // Copia el index.html a la carpeta dist 
       ],
     }),
   ],

@@ -17,7 +17,7 @@ export const createEnemyAnimations = function () {
       key: "enemy-attack",
       frames: this.anims.generateFrameNumbers("enemy-attack", { start: 0, end: 3 }),
       frameRate: 4,
-      repeat: -1,
+      repeat: 0,
     });
 
     this.anims.create({
