@@ -32,47 +32,54 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   attack(target) {
-    if (this.isDead) return;
+    if (this.isDead || this.isAttacking || !target || !target.active) return;
 
     const distance = Phaser.Math.Distance.Between(this.x, this.y, target.x, target.y);
+    if (distance > this.attackRange) return;
 
-    if (distance < this.attackRange) {
-      if (target && target.takeDamage) {
-        this.setVelocityX(0);
-        this.anims.play("enemy-attack", true);
+    this.isAttacking = true;
+    this.setVelocityX(0);
+    this.play("enemy-attack", true);
 
-        // ✅ Solo reproducir "idle" si aún existe y no está muerto
-        this.scene.time.delayedCall(1500, () => {
-          if (this.scene && this.anims && !this.isDead && this.active) {
-            this.anims.play("enemy-idle", true);
-          }
-        });
+    this.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
+      const stillClose = Phaser.Math.Distance.Between(this.x, this.y, target.x, target.y) <= this.attackRange;
 
+      if (!this.isDead && this.active && target.active && stillClose) {
         target.takeDamage(this.damage);
-        console.log("Enemy attacked target!");
+        console.log("✅ Enemy attacked target after animation");
       }
-    } else {
-      if (!this.isDead && this.anims) {
-        this.anims.play("enemy-idle", true);
+
+      if (!this.isDead && this.active) {
+        this.play("enemy-idle", true);
       }
-      console.log("Enemy is too far to attack!");
-    }
+
+      this.scene.time.delayedCall(1000, () => {
+        if (this && this.active) {
+          this.isAttacking = false;
+        }
+      });
+    });
   }
 
   die() {
     if (this.isDead) return;
     this.isDead = true;
     console.log("Enemy died!");
-    
+
     this.anims.play("enemy-death", true);
 
-    // ✅ Proteger el callback para evitar errores si el enemigo ya fue destruido
     this.scene.time.delayedCall(1000, () => {
       if (!this.scene || !this.active) return;
       this.setActive(false);
       this.setVisible(false);
-      this.destroy(); // Esto eliminará el sprite correctamente
+      this.destroy();
     });
+  }
+
+  jump() {
+    if (this.body.blocked.left || this.body.blocked.right) {
+      this.setVelocityY(-300);
+    }
   }
 
   update(player) {
@@ -80,26 +87,14 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     const distance = Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y);
 
-    // Ataque
-    if (distance < 80) {
-      this.anims.play("enemy-idle", true);
+    this.jump();
 
-      if (!this.isAttacking) {
-        this.isAttacking = true;
-        this.attack(player);
-
-        // Cooldown del ataque
-        this.scene.time.delayedCall(2000, () => {
-          if (this && this.active) {
-            this.isAttacking = false;
-          }
-        });
-      }
+    if (distance < 20) {
+      this.attack(player);
       return;
     }
 
-    // Persecución
-    if (distance < this.aggroRange) {
+    if (distance < this.aggroRange && !this.isAttacking) {
       const directionToPlayer = player.x < this.x ? -1 : 1;
       this.setVelocityX(directionToPlayer * this.speed);
       this.anims.play("enemy-walk", true);
@@ -107,10 +102,14 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       return;
     }
 
-    // Patrullaje
+    // Patrullaje básico
     this.setVelocityX(this.speed * this.direction);
     this.anims.play("enemy-walk", true);
     this.flipX = this.direction < 0;
+
+    if (this.body.blocked.right || this.body.blocked.left) {
+      this.direction *= -1;
+    }
 
     const distanceFromStart = this.x - this.startX;
     if (Math.abs(distanceFromStart) >= this.patrolDistance) {
@@ -118,7 +117,6 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  // ✅ Sobrescribir destroy para cancelar futuras acciones si fuera necesario
   destroy(fromScene) {
     this.isDead = true;
     super.destroy(fromScene);

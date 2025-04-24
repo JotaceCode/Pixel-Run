@@ -1,40 +1,52 @@
+import Phaser from "phaser";
+
 export default class GameOverScene extends Phaser.Scene {
   constructor() {
     super("GameOverScene");
   }
 
   preload() {
-    this.load.image("gameover", "assets/gameover.png");
+    // Carga la imagen de fondo de Game Over si la tienes
+    //this.load.image("gameover", "assets/gameover.png");
   }
 
   create() {
-    this.add.image(360, 220, "gameover").setScale(0.5);
-    this.input.on("pointerup", () => {
-      this.scene.start("MainScene");
+    // Mostrar fondo de Game Over centrado
+    this.add.image(this.cameras.main.width / 2, this.cameras.main.height / 2, "gameover").setScale(0.5);
+
+    // Texto de Game Over con efecto rebote
+    const gameOverText = this.add.text(
+      this.cameras.main.width / 2,
+      100,
+      "Game Over",
+      { font: "40px Arial", fill: "white" }
+    ).setOrigin(0.5);
+
+    this.tweens.add({
+      targets: gameOverText,
+      y: 80,
+      duration: 500,
+      ease: "Bounce.easeOut",
+      yoyo: true,
+      repeat: -1,
     });
 
-    // Cuenta atrás para reiniciar el juego
-    this.time.delayedCall(3000, () => {
-      this.scene.start("MainScene");
-    });
+    // Instrucción para reiniciar
+    const restartText = this.add.text(
+      this.cameras.main.width / 2,
+      this.cameras.main.height - 100,
+      "Presiona ENTER para reiniciar",
+      { font: "24px Arial", fill: "white" }
+    ).setOrigin(0.5);
 
-    // Texto de Game Over
-    const style = { font: "40px Arial", fill: "white" };
-    const text = this.add.text(360, 100, "Game Over", style).setOrigin(0.5);
-    text.setShadow(2, 2, "#000000", 2);
-    text.setStroke("#000000", 2);
-    text.setAlign("center");
-    text.setWordWrapWidth(600, true);
-    text.setLineSpacing(10);
-    text.setDepth(1); // Asegúrate de que el texto esté por encima de otros elementos
-    
+    // Capturar la tecla ENTER
+    this.enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
   }
 
-    update() {
-        // No hay lógica de actualización en esta escena
-        // Press any key to restart the game
-        if (this.input.activePointer.isDown) {
-            this.scene.start("MainScene");
-        }
+  update() {
+    // Si se presiona ENTER, volver a la escena inicial
+    if (Phaser.Input.Keyboard.JustDown(this.enterKey)) {
+      this.scene.start("BootScene");
     }
+  }
 }
