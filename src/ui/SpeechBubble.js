@@ -61,7 +61,7 @@ export class SpeechBubble extends Phaser.GameObjects.Container {
 
   unfreezeCharacters() {
     if (this.player?.body) this.player.body.enable = true;
-    if (this.enemies.length) {
+    if (this.enemies.length > 0) {
       this.enemies.forEach(enemy => {
         if (enemy?.body) enemy.body.enable = true;
       });
@@ -92,6 +92,7 @@ export class SpeechBubble extends Phaser.GameObjects.Container {
     }
 
     this.unfreezeCharacters();
+  
     this.destroy();
   }
 }

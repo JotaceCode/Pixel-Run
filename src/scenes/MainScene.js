@@ -39,10 +39,23 @@ export default class MainScene extends Phaser.Scene {
     this.player.setScale(0.5);
     this.player.setOrigin(0.5, 1);
 
-    this.enemies = new Enemy(this, 400, 100);
-    this.enemies.setScale(0.5);
-    this.enemies.setOrigin(0.5, 1);
-    this.enemies.setCollideWorldBounds(true);
+    // Usa un grupo:
+    this.enemies = this.physics.add.group();
+
+    const posicionesEnemigos = [
+      { x: 2140, y: 100 },
+      { x: 500, y: 200 },
+      { x: 900, y: 100 },
+      { x: 1200, y: 180 },
+    ];
+
+    posicionesEnemigos.forEach((pos) => {
+      const enemigo = new Enemy(this, pos.x, pos.y);
+      enemigo.setScale(0.5);
+      enemigo.setOrigin(0.5, 1);
+      enemigo.setCollideWorldBounds(true);
+      this.enemies.add(enemigo);
+    });
 
     createPlayerAnimations.call(this);
     createEnemyAnimations.call(this);
@@ -53,9 +66,15 @@ export default class MainScene extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
     this.cameras.main.startFollow(this.player, true, 1, 0.1);
 
-    new SpeechBubble(this, "¡Hola! Este es un mensaje del narrador.", this.player, [this.enemies], {
-      speed: 30,
-    });
+    new SpeechBubble(
+      this,
+      "¡Hola! Bienvenido a mi juego. ¡Espero que lo disfrutes!",
+      this.player,
+      [this.enemies],
+      {
+        speed: 30,
+      }
+    );
   }
 
   update() {
@@ -68,8 +87,11 @@ export default class MainScene extends Phaser.Scene {
 
     this.player.update();
 
-    if (this.enemies?.update) {
-      this.enemies.update(this.player);
-    }
+    this.enemies.children.iterate((enemy) => {
+      if (enemy?.update) {
+        enemy.update(this.player);
+      }
+    });
+    
   }
 }

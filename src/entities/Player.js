@@ -1,3 +1,4 @@
+import { actualizarVidaUI } from "../ui/utils";
 
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
@@ -29,24 +30,28 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.isJumping = false;
   }
 
-  attack(enemy) {
-    if (!enemy) return;
-
-    if (!enemy || !enemy.active) return;
-    const distance = Phaser.Math.Distance.Between(
-      this.x,
-      this.y,
-      enemy.x,
-      enemy.y
-    );
-    if (distance <= this.attackRange) {
-      console.log("Player attacks with power:", this.attackPower);
+  attack() {
+    // Buscar enemigos dentro del rango
+    const enemigosCercanos = this.scene.enemies.getChildren().filter(enemy => {
+      return (
+        enemy.active &&
+        Phaser.Math.Distance.Between(this.x, this.y, enemy.x, enemy.y) <= this.attackRange
+      );
+    });
+  
+    if (enemigosCercanos.length === 0) return;
+  
+    // Puedes atacar a todos, o solo al primero:
+    enemigosCercanos.forEach(enemy => {
+      console.log("Player attacks:", enemy.name || "un enemigo");
       enemy.takeDamage(this.attackPower);
-    }
+    });
   }
+  
 
   takeDamage(damage) {
     this.lifePoints -= damage;
+    actualizarVidaUI(this.lifePoints); // Actualiza la UI con la nueva vida
     console.log("Player takes damage:", damage);
     if (this.lifePoints <= 0) {
       this.die();
@@ -74,6 +79,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // Verificar si el jugador está muerto o no activo
     if (this.isDead || !this.active || !this.body) return;
 
+    // Actualizar vidas en la UI
+    actualizarVidaUI(this.lifePoints);
+    
     const onGround = this.body?.onFloor?.() || this.body?.touching?.down || false;
     const currentAnim = this.anims.currentAnim?.key;
 
