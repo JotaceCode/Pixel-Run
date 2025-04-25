@@ -8,6 +8,8 @@ export default class BootScene extends Phaser.Scene {
   }
 
   create() {
+
+   
     this.add
       .image(this.cameras.main.centerX, this.cameras.main.centerY, "logo")
       .setScale(0.5);
