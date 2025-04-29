@@ -106,15 +106,13 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.setVelocityX(this.speed * this.direction);
     this.anims.play("enemy-walk", true);
     this.flipX = this.direction < 0;
-
-    if (this.body.blocked.right || this.body.blocked.left) {
-      this.direction *= -1;
-    }
+    console.log("direccion:" + this.direction);
+    
 
     const distanceFromStart = this.x - this.startX;
     if (Math.abs(distanceFromStart) >= this.patrolDistance) {
       this.direction *= -1;
-    }
+    } 
   }
 
   destroy(fromScene) {

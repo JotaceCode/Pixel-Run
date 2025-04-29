@@ -1,15 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <title>Pixel Run</title>
     <script src="bundle.js" defer></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+      }
+
+      canvas {
+        display: block;
+      }
+    </style>
   </head>
-  <body class="w-full h-screen flex flex-col items-center bg-gray-900">
-    <!-- Navbar -->
-    <nav
-      class="fixed top-0 left-0 w-full bg-gray-800 text-white p-4 flex justify-between items-center z-50"
-    >
+  <body class="bg-gray-900">
+    <!-- Navbar fija -->
+    <nav class="fixed top-0 left-0 z-50 w-full flex justify-between bg-gray-800 text-white p-4">
       <div class="text-lg font-bold">Pixel Run</div>
       <div class="flex space-x-4">
         <a href="#" class="hover:text-gray-400">Inicio</a>
@@ -18,22 +27,26 @@
       </div>
     </nav>
 
-    <div
-      id="phaser-game"
-      class="relative mt-20 w-[720px] h-[480px]"
-    >
-      <!-- HUD o UI dentro del canvas -->
-      <div
-        id="ui"
-        class="absolute mt-20 top-20 w-full h-full pointer-events-none bg-transparent"
-      >
-        <!-- VIDA en la esquina superior derecha -->
-        <div
-          class="absolute top-2 right-2 bg-transparent text-white px-3 py-1 rounded text-[1.2rem] font-bold"
-        >
-          Vidas: <span id="vida"></span>
+    <!-- Contenedor centrado del juego -->
+    <div class="flex justify-center items-center pt-24">
+      <div id="phaser-game" class="relative w-[720px] h-[480px] border-2 border-white shadow-lg">
+        <!-- Phaser añadirá el canvas aquí automáticamente -->
+
+        <!-- UI superpuesta -->
+        <div id="ui" class="absolute top-0 left-0 w-full h-full pointer-events-none bg-transparent">
+          <!-- Vidas -->
+          <div class="absolute top-2 right-2 bg-transparent text-white px-3 py-1">
+            <span id="vida" class="flex gap-2 justify-center items-center"></span>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="text-white text-center mt-8">
+      <p>Desarrollado por José carlos Vélez</p>
+      <p>&copy; 2025 Pixel Run. Todos los derechos reservados.</p>
+      <p class="mt-2">Hecho con ❤️ usando Phaser y Tailwind CSS</p>
+    </footer>
   </body>
 </html>

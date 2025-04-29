@@ -40,12 +40,11 @@ export default class PreloadScene extends Phaser.Scene {
             logo.play('logoAnim2');   // Reproduce la segunda animación
         });
 
+        
+
         // Y cuando termina la segunda animación, cambiamos de escena
         logo.on('animationcomplete-logoAnim2', () => {
             this.scene.start("BootScene");
         });
     }
 }
-
-
-

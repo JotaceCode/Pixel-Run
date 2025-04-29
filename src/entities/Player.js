@@ -80,6 +80,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if (this.isDead || !this.active || !this.body) return;
 
     // Actualizar vidas en la UI
+    // no actualizar si no hay cambios
+    
+
     actualizarVidaUI(this.lifePoints);
     
     const onGround = this.body?.onFloor?.() || this.body?.touching?.down || false;
